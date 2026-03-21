@@ -2,44 +2,68 @@
 <html lang="it">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Stock Master PWA</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Caritas San Giovanni - Gestione Dispensa</title>
+    
     <link rel="stylesheet" href="style.css">
+    
     <script src="https://unpkg.com/html5-qrcode"></script>
+    
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#27ae60">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 </head>
 <body>
+
     <div id="app">
         <header>
-            <img src="logo.png" alt="Logo" class="logo"> <h1>Stock Master</h1>
+            <img src="logo.png" alt="Caritas San Giovanni Apostolo" class="logo">
         </header>
 
         <div id="main-menu">
-            <button onclick="showScanner()" class="btn-main">📸 SCAN PRODOTTO</button>
-            <button onclick="loadInventory()" class="btn-main secondary">📦 VEDI GIACENZA</button>
+            <button onclick="showScanner()" class="btn-main">
+                <span>📸</span> SCAN PRODOTTO
+            </button>
+            <button onclick="loadInventory()" class="btn-main secondary">
+                <span>📦</span> VEDI GIACENZA
+            </button>
         </div>
 
         <div id="scanner-container" style="display:none;">
             <div id="reader"></div>
-            <button onclick="hideScanner()" class="btn-back">Annulla</button>
+            <div class="scanner-controls">
+                <button onclick="hideScanner()" class="btn-back">❌ Annulla Scansione</button>
+            </div>
         </div>
 
         <div id="inventory-container" style="display:none;">
-            <button onclick="showMenu()" class="btn-back">Indietro</button>
-            <ul id="inventory-list"></ul>
+            <div class="inventory-header">
+                <button onclick="showMenu()" class="btn-back-small">⬅ Indietro</button>
+                <h2>Giacenza Attuale</h2>
+            </div>
+            <ul id="inventory-list">
+                </ul>
         </div>
 
         <div id="modal" class="modal" style="display:none;">
             <div class="modal-content">
-                <h3 id="prod-name">Prodotto...</h3>
-                <p id="prod-barcode"></p>
-                <input type="number" id="qty-input" placeholder="Quantità da aggiungere" value="1">
+                <div class="modal-header">
+                    <h3 id="prod-name">Nome Prodotto</h3>
+                    <span id="prod-barcode" class="barcode-badge"></span>
+                </div>
+                
+                <p>Quanti pezzi vuoi aggiungere?</p>
+                <input type="number" id="qty-input" inputmode="numeric" placeholder="Es: 10" autofocus>
+                
                 <div class="modal-buttons">
-                    <button onclick="saveStock()" class="btn-save">Salva</button>
-                    <button onclick="closeModal()" class="btn-cancel">Chiudi</button>
+                    <button onclick="saveStock()" class="btn-save">✅ Conferma</button>
+                    <button onclick="closeModal()" class="btn-cancel">Annulla</button>
                 </div>
             </div>
         </div>
     </div>
+
     <script src="script.js"></script>
 </body>
 </html>
