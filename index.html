@@ -60,29 +60,26 @@
                     <strong id="prod-name">---</strong>
                     <small id="prod-barcode">---</small>
                 </div>
-                
-                <input type="number" id="qty-input" inputmode="numeric" placeholder="Inserisci quantità" autofocus>
-                
+                <input type="number" id="qty-input" inputmode="numeric" placeholder="Quanti pezzi?" autofocus>
                 <div class="modal-buttons">
-                    <button id="btn-conferma-azione" class="btn-save">✅ Conferma</button>
+                    <button id="btn-conferma-azione" class="btn-save">✅ Procedi</button>
                     <button onclick="closeModal()" class="btn-cancel">Annulla</button>
                 </div>
             </div>
         </div>
-    </div>
 
-    <div id="confirm-modal" class="modal" style="display:none;">
-    <div class="modal-content confirm-box">
-        <div id="confirm-icon" class="confirm-icon">❓</div>
-        <h3 id="confirm-title">Sei sicuro?</h3>
-        <p id="confirm-text">Vuoi procedere con l'operazione?</p>
-        
-        <div class="modal-buttons">
-            <button id="btn-yes" class="btn-save">SÌ, PROCEDI</button>
-            <button onclick="closeConfirm()" class="btn-cancel">No, annulla</button>
+        <div id="confirm-modal" class="modal" style="display:none;">
+            <div id="confirm-box" class="modal-content confirm-box">
+                <div id="confirm-icon" class="confirm-icon">❓</div>
+                <h3 id="confirm-title">Sei sicuro?</h3>
+                <p id="confirm-text">Vuoi procedere?</p>
+                <div class="modal-buttons">
+                    <button id="btn-yes" class="btn-save">SÌ, CONFERMO</button>
+                    <button onclick="closeConfirm()" class="btn-cancel">No, correggi</button>
+                </div>
+            </div>
         </div>
     </div>
-</div>
 
     <script src="script.js"></script>
 </body>
