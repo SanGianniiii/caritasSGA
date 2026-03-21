@@ -2,7 +2,6 @@ const GAS_URL = "https://script.google.com/macros/s/AKfycbyii0LB2JBDbe_oS2wTon6b
 let html5QrCode;
 let currentProduct = null;
 
-// Gestione Overlay Caricamento
 function showLoading(show) {
     document.getElementById('loading-overlay').style.display = show ? 'flex' : 'none';
 }
@@ -31,10 +30,8 @@ async function onScanSuccess(barcode) {
     try {
         await html5QrCode.stop();
         document.getElementById('scanner-container').style.display = 'none';
-        
         let resp = await fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ action: 'checkProduct', barcode: barcode }) });
         let product = await resp.json();
-
         if (product) {
             currentProduct = { ...product, barcode: barcode };
         } else {
@@ -44,10 +41,9 @@ async function onScanSuccess(barcode) {
             if(!name) { showMenu(); return; }
             currentProduct = { name: name, barcode: barcode, row: null };
         }
-        openModal("carico");
-    } finally {
         showLoading(false);
-    }
+        openModal("carico");
+    } catch (e) { showLoading(false); alert("Errore"); }
 }
 
 function openModal(tipo, name = null, barcode = null, row = null) {
@@ -57,78 +53,77 @@ function openModal(tipo, name = null, barcode = null, row = null) {
     document.getElementById('prod-barcode').innerText = "Cod: " + currentProduct.barcode;
     document.getElementById('qty-input').value = "";
     document.getElementById('modal').style.display = 'flex';
-    document.getElementById('btn-conferma-azione').onclick = () => chiediConferma(tipo);
+    document.getElementById('btn-conferma-azione').onclick = () => chiediConfermaGrafica(tipo);
 }
 
-// NUOVA FUNZIONE DI CONFERMA
-function chiediConferma(tipo) {
+// NUOVA CONFERMA GRAFICA (Sostituisce confirm() di sistema)
+function chiediConfermaGrafica(tipo) {
     const qty = document.getElementById('qty-input').value;
-    if (!qty || qty <= 0) { alert("Inserisci una quantità valida!"); return; }
+    if (!qty || qty <= 0) { alert("Inserisci quantità!"); return; }
 
-    const domanda = tipo === "carico" 
-        ? `Sei sicuro di voler AGGIUNGERE ${qty} pezzi di "${currentProduct.name}"?` 
-        : `Sei sicuro di voler SCARICARE ${qty} pezzi di "${currentProduct.name}"?`;
+    const modal = document.getElementById('confirm-modal');
+    const box = document.getElementById('confirm-box');
+    const text = document.getElementById('confirm-text');
+    const icon = document.getElementById('confirm-icon');
 
-    if (confirm(domanda)) {
-        inviaDati(tipo, qty);
+    if (tipo === "carico") {
+        box.classList.remove('danger-zone');
+        icon.innerText = "📥";
+        text.innerHTML = `Vuoi AGGIUNGERE <br><b>${qty} pezzi</b> di <br><b>${currentProduct.name}</b>?`;
+    } else {
+        box.classList.add('danger-zone');
+        icon.innerText = "📤";
+        text.innerHTML = `Vuoi SCARICARE <br><b>${qty} pezzi</b> di <br><b>${currentProduct.name}</b>?`;
     }
+
+    modal.style.display = 'flex';
+    document.getElementById('btn-yes').onclick = () => {
+        closeConfirm();
+        inviaDati(tipo, qty);
+    };
 }
 
 async function inviaDati(tipo, qty) {
     closeModal();
-    showLoading(true); // Attiva lo spinner
+    showLoading(true);
     
-    try {
-        const finalQty = tipo === "carico" ? parseInt(qty) : -parseInt(qty);
-        
-        await fetch(GAS_URL, {
-            method: 'POST',
-            body: JSON.stringify({
-                action: 'updateStock',
-                barcode: currentProduct.barcode,
-                name: currentProduct.name,
-                quantity: finalQty,
-                row: currentProduct.row
-            })
-        });
-        
-        showSuccess(tipo === "carico" ? `✅ Aggiunti ${qty} pz` : `📤 Scaricati ${qty} pz`);
-        
-        if (tipo === "scarico") loadInventory(); else showMenu();
-    } catch (e) {
-        alert("Errore durante l'operazione. Riprova.");
-    } finally {
-        showLoading(false); // Nasconde lo spinner
-    }
+    // Piccolo delay per far apparire lo spinner
+    setTimeout(async () => {
+        try {
+            const finalQty = tipo === "carico" ? parseInt(qty) : -parseInt(qty);
+            await fetch(GAS_URL, {
+                method: 'POST',
+                body: JSON.stringify({
+                    action: 'updateStock',
+                    barcode: currentProduct.barcode,
+                    name: currentProduct.name,
+                    quantity: finalQty,
+                    row: currentProduct.row
+                })
+            });
+            showLoading(false);
+            showSuccess(tipo === "carico" ? `✅ Aggiunti ${qty} pz` : `📤 Scaricati ${qty} pz`);
+            if (tipo === "scarico") loadInventory(); else showMenu();
+        } catch (e) { showLoading(false); alert("Errore invio"); }
+    }, 150);
 }
 
 async function loadInventory() {
     const list = document.getElementById('inventory-list');
     document.getElementById('main-menu').style.display = 'none';
     document.getElementById('inventory-container').style.display = 'block';
-    list.innerHTML = "<div class='loader'>Caricamento in corso...</div>";
-
-    try {
-        const resp = await fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ action: 'getInventory' }) });
-        const data = await resp.json();
-        list.innerHTML = data.map((item, index) => `
-            <li class="inventory-card">
-                <div class="prod-info">
-                    <strong>${item[1]}</strong>
-                    <small>${item[0]} — <b style="color:var(--primary)">${item[2]} pz</b></small>
-                </div>
-                <button class="btn-scarica" onclick="openModal('scarico', '${item[1]}', '${item[0]}', ${index + 2})">SCARICA</button>
-            </li>
-        `).join('');
-    } catch (e) {
-        list.innerHTML = "<li>Errore caricamento dati.</li>";
-    }
+    list.innerHTML = "<div class='loader'>Caricamento...</div>";
+    const resp = await fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ action: 'getInventory' }) });
+    const data = await resp.json();
+    list.innerHTML = data.map((item, index) => `
+        <li class="inventory-card">
+            <div class="prod-info"><strong>${item[1]}</strong><small>${item[0]} — <b style="color:var(--primary)">${item[2]} pz</b></small></div>
+            <button class="btn-scarica" onclick="openModal('scarico', '${item[1]}', '${item[0]}', ${index + 2})">SCARICA</button>
+        </li>
+    `).join('');
 }
 
-function showMenu() { 
-    document.getElementById('main-menu').style.display = 'block'; 
-    document.getElementById('inventory-container').style.display = 'none'; 
-    document.getElementById('scanner-container').style.display = 'none'; 
-}
+function showMenu() { document.getElementById('main-menu').style.display = 'block'; document.getElementById('inventory-container').style.display = 'none'; document.getElementById('scanner-container').style.display = 'none'; }
 function closeModal() { document.getElementById('modal').style.display = 'none'; }
-function hideScanner() { if(html5QrCode) { html5QrCode.stop(); showMenu(); } }
+function closeConfirm() { document.getElementById('confirm-modal').style.display = 'none'; }
+function hideScanner() { if(html5QrCode) html5QrCode.stop().then(() => showMenu()); }
