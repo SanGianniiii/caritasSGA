@@ -4,6 +4,7 @@
     --danger: #e74c3c;
     --bg: #f8f9fa;
     --card: #ffffff;
+    --text-muted: #7f8c8d;
 }
 
 body { 
@@ -11,22 +12,26 @@ body {
     background: var(--bg); 
     margin: 0; 
     color: var(--secondary);
+    /* Previene lo scroll orizzontale su mobile */
+    overflow-x: hidden;
 }
 
+/* Header & Logo */
 header { 
-    padding: 20px; 
+    padding: 15px; 
     background: white; 
     box-shadow: 0 4px 12px rgba(0,0,0,0.05);
     text-align: center;
 }
 
 .logo { 
-    width: 90%; 
+    width: 95%; 
     max-width: 350px; 
-    border-radius: 15px;
+    border-radius: 12px;
 }
 
-#main-menu { padding: 20px; }
+/* Menu Principale */
+#main-menu { padding: 25px 20px; }
 
 .btn-main {
     display: flex;
@@ -35,7 +40,7 @@ header {
     gap: 15px;
     width: 100%;
     margin-bottom: 20px;
-    padding: 25px;
+    padding: 22px;
     font-size: 1.1rem;
     font-weight: 700;
     border: none;
@@ -43,59 +48,92 @@ header {
     background: var(--primary);
     color: white;
     box-shadow: 0 8px 20px rgba(39, 174, 96, 0.2);
-    transition: transform 0.2s;
-}
-
-.btn-main.secondary { background: var(--secondary); box-shadow: 0 8px 20px rgba(44, 62, 80, 0.2); }
-.btn-main:active { transform: scale(0.98); }
-
-/* Lista Giacenza Moderna */
-#inventory-list { list-style: none; padding: 15px; margin: 0; }
-.inventory-card {
-    background: var(--card);
-    margin-bottom: 12px;
-    padding: 15px;
-    border-radius: 15px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
-}
-
-.prod-info { text-align: left; flex-grow: 1; }
-.prod-info strong { font-size: 1.1rem; display: block; margin-bottom: 4px; }
-.prod-info small { color: #7f8c8d; }
-
-.qty-controls {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-.btn-qty {
-    width: 35px;
-    height: 35px;
-    border-radius: 10px;
-    border: none;
-    font-weight: bold;
-    font-size: 1.2rem;
+    transition: all 0.2s ease;
     cursor: pointer;
 }
 
-.btn-plus { background: #eafaf1; color: var(--primary); }
-.btn-minus { background: #fdedec; color: var(--danger); }
-.qty-val { font-weight: bold; min-width: 30px; text-align: center; }
+.btn-main span { font-size: 1.5rem; }
+.btn-main.secondary { background: var(--secondary); box-shadow: 0 8px 20px rgba(44, 62, 80, 0.2); }
+.btn-main:active { transform: scale(0.96); opacity: 0.9; }
 
-/* Modal migliorato */
-.modal { position: fixed; inset: 0; background: rgba(0,0,0,0.6); display: flex; align-items: center; justify-content: center; z-index: 1000; }
-.modal-content { background: white; padding: 25px; border-radius: 20px; width: 85%; max-width: 400px; }
-.modal input { 
-    width: 100%; 
-    padding: 15px; 
-    margin: 20px 0; 
-    border: 2px solid #eee; 
-    border-radius: 12px; 
-    font-size: 1.2rem; 
-    text-align: center;
-    box-sizing: border-box;
+/* Vista Giacenza */
+.inventory-header {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 15px 20px;
+    background: white;
+    position: sticky; /* Rimane in alto mentre scorri */
+    top: 0;
+    z-index: 10;
+    border-bottom: 1px solid #eee;
 }
+
+.inventory-header h2 { font-size: 1.2rem; margin: 0; flex-grow: 1; }
+
+#inventory-list { list-style: none; padding: 15px; margin: 0; }
+
+.inventory-card {
+    background: var(--card);
+    margin-bottom: 12px;
+    padding: 16px;
+    border-radius: 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.03);
+    border: 1px solid rgba(0,0,0,0.02);
+}
+
+.prod-info { text-align: left; flex-grow: 1; padding-right: 10px; }
+.prod-info strong { font-size: 1.05rem; display: block; margin-bottom: 4px; color: #2c3e50; }
+.barcode-badge { 
+    font-size: 0.75rem; 
+    color: var(--text-muted); 
+    background: #f1f1f1; 
+    padding: 2px 8px; 
+    border-radius: 6px;
+    font-family: monospace;
+}
+
+/* Controlli Quantità Rapidi (+ / -) */
+.qty-controls { display: flex; align-items: center; gap: 12px; background: #f8f9fa; padding: 5px 10px; border-radius: 12px; }
+.btn-qty {
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+    border: none;
+    font-weight: bold;
+    font-size: 1.3rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s;
+}
+.btn-plus { background: #d4f3e0; color: var(--primary); }
+.btn-minus { background: #fcdbd9; color: var(--danger); }
+.qty-val { font-weight: 800; min-width: 25px; text-align: center; font-size: 1.1rem; }
+
+/* Modal (Popup) */
+.modal { position: fixed; inset: 0; background: rgba(0,0,0,0.7); display: flex; align-items: center; justify-content: center; z-index: 2000; backdrop-filter: blur(4px); }
+.modal-content { background: white; padding: 25px; border-radius: 24px; width: 85%; max-width: 380px; text-align: center; }
+.modal-header h3 { margin: 0 0 10px 0; font-size: 1.3rem; }
+.modal input { 
+    width: 100%; padding: 18px; margin: 20px 0; border: 2px solid #edf2f7; border-radius: 16px; 
+    font-size: 1.5rem; text-align: center; box-sizing: border-box; background: #f8f9fa;
+}
+.modal input:focus { border-color: var(--primary); outline: none; background: white; }
+
+.modal-buttons { display: flex; flex-direction: column; gap: 10px; }
+.btn-save { background: var(--primary); color: white; padding: 16px; border-radius: 14px; border: none; font-weight: bold; font-size: 1rem; cursor: pointer; }
+.btn-cancel { background: transparent; color: var(--text-muted); padding: 10px; border: none; cursor: pointer; font-size: 0.9rem; }
+
+/* Scanner */
+#reader { width: 100% !important; border-radius: 20px; overflow: hidden; margin-top: 10px; border: none !important; }
+.scanner-controls { padding: 20px; }
+.btn-back { width: 100%; padding: 15px; border-radius: 12px; border: none; background: var(--danger); color: white; font-weight: bold; font-size: 1rem; }
+.btn-back-small { border: none; background: #eee; padding: 8px 12px; border-radius: 8px; font-weight: bold; }
+
+/* Loader animato semplice */
+.loader { padding: 40px; color: var(--text-muted); font-style: italic; }
