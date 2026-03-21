@@ -1,24 +1,101 @@
 :root {
-    --primary: #2ecc71;
-    --secondary: #34495e;
-    --bg: #f4f7f6;
+    --primary: #27ae60;
+    --secondary: #2c3e50;
+    --danger: #e74c3c;
+    --bg: #f8f9fa;
+    --card: #ffffff;
 }
 
-body { font-family: 'Segoe UI', sans-serif; background: var(--bg); margin: 0; text-align: center; }
-header { padding: 20px; background: white; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-.logo { height: 60px; margin-bottom: 10px; }
+body { 
+    font-family: 'Segoe UI', Roboto, sans-serif; 
+    background: var(--bg); 
+    margin: 0; 
+    color: var(--secondary);
+}
+
+header { 
+    padding: 20px; 
+    background: white; 
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    text-align: center;
+}
+
+.logo { 
+    width: 90%; 
+    max-width: 350px; 
+    border-radius: 15px;
+}
+
+#main-menu { padding: 20px; }
 
 .btn-main {
-    display: block; width: 80%; margin: 20px auto; padding: 20px;
-    font-size: 1.2rem; font-weight: bold; border: none; border-radius: 12px;
-    background: var(--primary); color: white; cursor: pointer;
-    box-shadow: 0 4px 15px rgba(46, 204, 113, 0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+    width: 100%;
+    margin-bottom: 20px;
+    padding: 25px;
+    font-size: 1.1rem;
+    font-weight: 700;
+    border: none;
+    border-radius: 16px;
+    background: var(--primary);
+    color: white;
+    box-shadow: 0 8px 20px rgba(39, 174, 96, 0.2);
+    transition: transform 0.2s;
 }
-.secondary { background: var(--secondary); }
 
-.modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); display: flex; align-items: center; justify-content: center; }
-.modal-content { background: white; padding: 30px; border-radius: 20px; width: 80%; }
-input { width: 100%; padding: 10px; margin: 15px 0; font-size: 1.1rem; border: 1px solid #ddd; border-radius: 8px; }
+.btn-main.secondary { background: var(--secondary); box-shadow: 0 8px 20px rgba(44, 62, 80, 0.2); }
+.btn-main:active { transform: scale(0.98); }
 
-#inventory-list { list-style: none; padding: 0; margin: 20px; text-align: left; }
-#inventory-list li { background: white; padding: 15px; margin-bottom: 10px; border-radius: 10px; display: flex; justify-content: space-between; }
+/* Lista Giacenza Moderna */
+#inventory-list { list-style: none; padding: 15px; margin: 0; }
+.inventory-card {
+    background: var(--card);
+    margin-bottom: 12px;
+    padding: 15px;
+    border-radius: 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
+
+.prod-info { text-align: left; flex-grow: 1; }
+.prod-info strong { font-size: 1.1rem; display: block; margin-bottom: 4px; }
+.prod-info small { color: #7f8c8d; }
+
+.qty-controls {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.btn-qty {
+    width: 35px;
+    height: 35px;
+    border-radius: 10px;
+    border: none;
+    font-weight: bold;
+    font-size: 1.2rem;
+    cursor: pointer;
+}
+
+.btn-plus { background: #eafaf1; color: var(--primary); }
+.btn-minus { background: #fdedec; color: var(--danger); }
+.qty-val { font-weight: bold; min-width: 30px; text-align: center; }
+
+/* Modal migliorato */
+.modal { position: fixed; inset: 0; background: rgba(0,0,0,0.6); display: flex; align-items: center; justify-content: center; z-index: 1000; }
+.modal-content { background: white; padding: 25px; border-radius: 20px; width: 85%; max-width: 400px; }
+.modal input { 
+    width: 100%; 
+    padding: 15px; 
+    margin: 20px 0; 
+    border: 2px solid #eee; 
+    border-radius: 12px; 
+    font-size: 1.2rem; 
+    text-align: center;
+    box-sizing: border-box;
+}
