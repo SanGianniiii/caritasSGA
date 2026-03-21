@@ -1,0 +1,24 @@
+:root {
+    --primary: #2ecc71;
+    --secondary: #34495e;
+    --bg: #f4f7f6;
+}
+
+body { font-family: 'Segoe UI', sans-serif; background: var(--bg); margin: 0; text-align: center; }
+header { padding: 20px; background: white; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+.logo { height: 60px; margin-bottom: 10px; }
+
+.btn-main {
+    display: block; width: 80%; margin: 20px auto; padding: 20px;
+    font-size: 1.2rem; font-weight: bold; border: none; border-radius: 12px;
+    background: var(--primary); color: white; cursor: pointer;
+    box-shadow: 0 4px 15px rgba(46, 204, 113, 0.3);
+}
+.secondary { background: var(--secondary); }
+
+.modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); display: flex; align-items: center; justify-content: center; }
+.modal-content { background: white; padding: 30px; border-radius: 20px; width: 80%; }
+input { width: 100%; padding: 10px; margin: 15px 0; font-size: 1.1rem; border: 1px solid #ddd; border-radius: 8px; }
+
+#inventory-list { list-style: none; padding: 0; margin: 20px; text-align: left; }
+#inventory-list li { background: white; padding: 15px; margin-bottom: 10px; border-radius: 10px; display: flex; justify-content: space-between; }
