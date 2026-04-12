@@ -31,21 +31,58 @@ header { background: var(--blue); color: white; text-align: center; padding: 30p
 .qty-selector { display: flex; align-items: center; justify-content: center; gap: 15px; margin: 30px 0; }
 .btn-circle { width: 70px; height: 70px; border-radius: 50%; border: none; background: #eee; font-size: 2rem; }
 .qty-selector input { width: 90px; height: 70px; text-align: center; font-size: 2rem; font-weight: bold; border: 2px solid var(--blue); border-radius: 10px; }
+.input-group { margin-bottom: 20px; text-align: left; }
+.input-group label { display: block; font-weight: bold; margin-bottom: 5px; color: var(--blue); }
+.input-group input, .input-group select { width: 100%; padding: 15px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 1.1rem; }
 .action-row { display: flex; flex-direction: column; gap: 10px; }
 .btn-confirm { padding: 20px; background: var(--blue); color: white; border: none; border-radius: 15px; font-weight: bold; font-size: 1.1rem; }
-.btn-cancel { padding: 10px; background: transparent; border: none; color: #666; }
+.btn-cancel { padding: 10px; background: transparent; border: none; color: #666; font-size: 1.1rem; }
 
-/* Inventario */
+/* Inventario e Filtro (Modificati per essere più grandi) */
 .full-view { position: fixed; inset: 0; background: white; z-index: 5000; display: flex; flex-direction: column; }
-.sticky-header { padding: 15px; border-bottom: 1px solid #eee; display: flex; gap: 10px; }
+
+.sticky-header { 
+    padding: 15px; 
+    border-bottom: 1px solid #eee; 
+    display: flex; 
+    gap: 15px; 
+    align-items: center;
+    background: white;
+}
+
+.btn-back {
+    padding: 15px 20px;
+    background: var(--blue);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-weight: bold;
+    font-size: 1.1rem;
+    white-space: nowrap;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+#category-filter {
+    flex-grow: 1;
+    padding: 15px;
+    font-size: 1.1rem;
+    font-weight: bold;
+    color: var(--blue);
+    border: 2px solid var(--blue);
+    border-radius: 12px;
+    background-color: #f8fafc;
+    outline: none;
+}
+
+#inventory-list { list-style: none; padding: 0; margin: 0; }
 .inventory-card { padding: 15px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; }
-.btn-q { width: 45px; height: 45px; border-radius: 10px; border: none; color: white; font-weight: bold; }
+.btn-q { width: 45px; height: 45px; border-radius: 10px; border: none; color: white; font-weight: bold; font-size: 1.2rem; }
 .btn-plus { background: var(--green); }
 .btn-minus { background: var(--red); }
-.prod-badge { display: inline-block; padding: 4px 8px; background: #e0e7ff; color: var(--blue); border-radius: 5px; font-size: 0.7rem; font-weight: bold; margin-bottom: 5px; }
+.prod-badge { display: inline-block; padding: 4px 8px; background: #e0e7ff; color: var(--blue); border-radius: 5px; font-size: 0.8rem; font-weight: bold; margin-bottom: 5px; }
 
 /* Toast */
 #toast-container { position: fixed; top: 20px; left: 20px; right: 20px; z-index: 21000; }
-.toast { padding: 15px; border-radius: 10px; color: white; margin-bottom: 10px; text-align: center; font-weight: bold; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
+.toast { padding: 15px; border-radius: 10px; color: white; margin-bottom: 10px; text-align: center; font-weight: bold; box-shadow: 0 4px 10px rgba(0,0,0,0.2); transition: opacity 0.5s; }
 .toast-success { background: var(--green); }
 .toast-error { background: var(--red); }
