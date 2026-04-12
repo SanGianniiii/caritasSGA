@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Caritas Dispensa</title>
+    <title>Caritas Dispensa Pro</title>
     <link rel="stylesheet" href="style.css">
     <script src="https://unpkg.com/html5-qrcode"></script>
     <link rel="manifest" href="manifest.json">
@@ -14,7 +14,7 @@
     <div id="app">
         <div id="loading-overlay" class="loading-overlay" style="display:none;">
             <div class="spinner"></div>
-            <p>Elaborazione...</p>
+            <p>Sincronizzazione...</p>
         </div>
 
         <div id="custom-alert" class="custom-alert" style="display:none;">
@@ -26,7 +26,7 @@
 
         <header id="main-header">
             <h1 class="app-title">Caritas San Giovanni</h1>
-            <p class="app-subtitle">Gestione Dispensa</p>
+            <p class="app-subtitle">Gestione Avanzata Dispensa</p>
         </header>
 
         <div id="main-menu" class="container">
@@ -39,43 +39,34 @@
         </div>
 
         <div id="scanner-container" style="display:none;">
-            <div class="scanner-header">Inquadra il Codice a Barre</div>
+            <div class="scanner-header">Inquadra Codice</div>
             <div id="reader"></div>
-            <button onclick="hideScanner()" class="btn-cancel-scan">❌ ANNULLA E CHIUDI</button>
+            <button onclick="hideScanner()" class="btn-cancel-scan">❌ ANNULLA</button>
         </div>
 
         <div id="inventory-container" style="display:none;" class="container">
             <div class="inventory-controls">
-                <button onclick="showMenu()" class="btn-outline">⬅ Torna al Menu</button>
+                <button onclick="showMenu()" class="btn-outline">⬅ Menu</button>
                 <div class="filter-group">
-                    <label for="category-filter">Filtra per Categoria:</label>
                     <select id="category-filter" onchange="renderInventory()">
                         <option value="ALL">Tutte le categorie</option>
-                        </select>
+                    </select>
                 </div>
             </div>
-            <div class="stats-bar">Totale prodotti visualizzati: <b id="total-items">0</b></div>
             <ul id="inventory-list"></ul>
         </div>
 
         <div id="modal-new-product" class="modal" style="display:none;">
             <div class="modal-content">
-                <h3>Prodotto Sconosciuto</h3>
-                <p class="text-muted">Registra questo prodotto nel sistema.</p>
-                
+                <h3>Nuovo Prodotto</h3>
                 <div class="form-group">
-                    <label>Nome Prodotto (es. Penne Rigate 1kg)</label>
+                    <label>Nome Prodotto</label>
                     <input type="text" id="new-prod-name" placeholder="Inserisci nome...">
                 </div>
-                
                 <div class="form-group">
                     <label>Categoria</label>
-                    <select id="new-prod-category" onchange="checkNewCategory(this)">
-                        <option value="" disabled selected>Seleziona una categoria...</option>
-                        <option value="NEW">➕ Aggiungi nuova categoria...</option>
-                    </select>
+                    <select id="new-prod-category" onchange="checkNewCategory(this)"></select>
                 </div>
-
                 <div class="modal-buttons">
                     <button onclick="saveNewProductAnagrafica()" class="btn-save">Avanti ➡</button>
                     <button onclick="closeModals()" class="btn-text">Annulla</button>
@@ -87,23 +78,20 @@
             <div class="modal-content">
                 <h3 id="modal-title">Operazione</h3>
                 <div class="modal-info">
-                    <span class="badge" id="prod-category-badge">Categoria</span>
-                    <strong id="prod-name-display" class="product-title">---</strong>
+                    <span class="badge" id="prod-category-badge"></span>
+                    <strong id="prod-name-display" class="product-title"></strong>
                 </div>
-                
                 <div class="qty-control">
                     <button onclick="changeQty(-1)" class="btn-qty">-</button>
-                    <input type="number" id="qty-input" inputmode="numeric" value="1" min="1">
+                    <input type="number" id="qty-input" inputmode="numeric" value="1">
                     <button onclick="changeQty(1)" class="btn-qty">+</button>
                 </div>
-
                 <div class="modal-buttons">
-                    <button id="btn-conferma-azione" class="btn-save">✅ Conferma</button>
-                    <button onclick="closeModals()" class="btn-text">Annulla</button>
+                    <button id="btn-conferma-azione" class="btn-save">Conferma</button>
+                    <button onclick="closeModals()" class="btn-text">Chiudi</button>
                 </div>
             </div>
         </div>
-
     </div>
     <script src="script.js"></script>
 </body>
