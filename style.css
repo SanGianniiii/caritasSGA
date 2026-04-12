@@ -1,88 +1,52 @@
 :root { --blue: #1e3a8a; --green: #16a34a; --red: #dc2626; --light: #f1f5f9; }
 * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-body { font-family: sans-serif; margin: 0; background: var(--light); color: #1e293b; }
+body { font-family: sans-serif; margin: 0; background: var(--light); color: #1e293b; overflow-x: hidden; }
 
-/* Caricamento / Spinner */
+/* Caricamento */
 #loading-overlay { position: fixed; inset: 0; background: rgba(255,255,255,0.9); z-index: 20000; display: flex; align-items: center; justify-content: center; }
 .loader-box { text-align: center; }
 .spinner { width: 50px; height: 50px; border: 5px solid #e2e8f0; border-top: 5px solid var(--blue); border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 15px; }
 @keyframes spin { 100% { transform: rotate(360deg); } }
-#loading-text { font-weight: bold; color: var(--blue); animation: pulse 1.5s infinite; }
-@keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
 
-/* Layout */
+/* Header e Menu */
 header { background: var(--blue); color: white; text-align: center; padding: 30px; border-radius: 0 0 25px 25px; }
 .container { padding: 20px; }
 .btn-hero { width: 100%; height: 160px; border-radius: 20px; border: none; margin-bottom: 20px; display: flex; flex-direction: column; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
 .btn-blue { background: var(--blue); color: white; }
 .btn-white { background: white; color: var(--blue); }
-.btn-icon { font-size: 2.5rem; }
-.btn-text { font-weight: bold; margin-top: 10px; }
 
 /* Scanner */
 #scanner-container { position: fixed; inset: 0; background: #000; z-index: 9999; }
 #reader { width: 100%; height: 100%; }
-.scanner-ui { position: absolute; bottom: 30px; width: 100%; padding: 0 20px; }
-.btn-danger-full { width: 100%; padding: 20px; background: var(--red); color: white; border: none; border-radius: 15px; font-weight: bold; }
+.scanner-ui { position: absolute; bottom: 30px; width: 100%; padding: 0 20px; z-index: 10001; }
 
-/* Modali Full Screen */
-.modal { position: fixed; inset: 0; background: white; z-index: 10000; padding: 40px 20px; display: flex; flex-direction: column; }
-.modal-body { width: 100%; max-width: 400px; margin: 0 auto; text-align: center; }
-.qty-selector { display: flex; align-items: center; justify-content: center; gap: 15px; margin: 30px 0; }
-.btn-circle { width: 70px; height: 70px; border-radius: 50%; border: none; background: #eee; font-size: 2rem; }
-.qty-selector input { width: 90px; height: 70px; text-align: center; font-size: 2rem; font-weight: bold; border: 2px solid var(--blue); border-radius: 10px; }
-.input-group { margin-bottom: 20px; text-align: left; }
-.input-group label { display: block; font-weight: bold; margin-bottom: 5px; color: var(--blue); }
-.input-group input, .input-group select { width: 100%; padding: 15px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 1.1rem; }
-.action-row { display: flex; flex-direction: column; gap: 10px; }
-.btn-confirm { padding: 20px; background: var(--blue); color: white; border: none; border-radius: 15px; font-weight: bold; font-size: 1.1rem; }
-.btn-cancel { padding: 10px; background: transparent; border: none; color: #666; font-size: 1.1rem; }
-
-/* Inventario e Filtro (Modificati per essere più grandi) */
+/* Inventario con Scroll Funzionante */
 .full-view { position: fixed; inset: 0; background: white; z-index: 5000; display: flex; flex-direction: column; }
-
 .sticky-header { 
-    padding: 15px; 
-    border-bottom: 1px solid #eee; 
-    display: flex; 
-    gap: 15px; 
-    align-items: center;
-    background: white;
+    padding: 15px; border-bottom: 1px solid #eee; display: flex; gap: 10px; 
+    align-items: center; background: white; flex-shrink: 0;
 }
-
-.btn-back {
-    padding: 15px 20px;
-    background: var(--blue);
-    color: white;
-    border: none;
-    border-radius: 12px;
-    font-weight: bold;
-    font-size: 1.1rem;
-    white-space: nowrap;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-}
-
-#category-filter {
-    flex-grow: 1;
-    padding: 15px;
-    font-size: 1.1rem;
-    font-weight: bold;
-    color: var(--blue);
-    border: 2px solid var(--blue);
-    border-radius: 12px;
-    background-color: #f8fafc;
-    outline: none;
-}
-
+#inventory-list-content { flex-grow: 1; overflow-y: auto; padding-bottom: 80px; } /* Permette lo scroll */
 #inventory-list { list-style: none; padding: 0; margin: 0; }
+
+.btn-back { padding: 12px 15px; background: var(--blue); color: white; border: none; border-radius: 10px; font-weight: bold; }
+#category-filter { 
+    flex-grow: 1; padding: 12px; border-radius: 10px; border: 2px solid var(--blue); 
+    max-width: calc(100% - 100px); /* Impedisce l'uscita dallo schermo */
+}
+
+/* Modali */
+.modal { position: fixed; inset: 0; background: white; z-index: 10000; padding: 20px; display: flex; flex-direction: column; overflow-y: auto; }
+.modal-body { width: 100%; max-width: 400px; margin: auto; text-align: center; }
+.qty-selector { display: flex; align-items: center; justify-content: center; gap: 15px; margin: 20px 0; }
+.btn-circle { width: 60px; height: 60px; border-radius: 50%; border: none; background: #eee; font-size: 1.5rem; }
+.qty-selector input { width: 80px; height: 60px; text-align: center; font-size: 1.5rem; border: 2px solid var(--blue); border-radius: 10px; }
+
 .inventory-card { padding: 15px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; }
-.btn-q { width: 45px; height: 45px; border-radius: 10px; border: none; color: white; font-weight: bold; font-size: 1.2rem; }
-.btn-plus { background: var(--green); }
-.btn-minus { background: var(--red); }
-.prod-badge { display: inline-block; padding: 4px 8px; background: #e0e7ff; color: var(--blue); border-radius: 5px; font-size: 0.8rem; font-weight: bold; margin-bottom: 5px; }
+.btn-q { width: 45px; height: 45px; border-radius: 10px; border: none; color: white; font-weight: bold; }
+.btn-plus { background: var(--green); } .btn-minus { background: var(--red); }
 
 /* Toast */
 #toast-container { position: fixed; top: 20px; left: 20px; right: 20px; z-index: 21000; }
-.toast { padding: 15px; border-radius: 10px; color: white; margin-bottom: 10px; text-align: center; font-weight: bold; box-shadow: 0 4px 10px rgba(0,0,0,0.2); transition: opacity 0.5s; }
-.toast-success { background: var(--green); }
-.toast-error { background: var(--red); }
+.toast { padding: 15px; border-radius: 10px; color: white; margin-bottom: 10px; text-align: center; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
+.toast-success { background: var(--green); } .toast-error { background: var(--red); }
