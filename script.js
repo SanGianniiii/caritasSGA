@@ -3,7 +3,16 @@ const GAS_URL = "https://script.google.com/macros/s/AKfycbyii0LB2JBDbe_oS2wTon6b
 let html5QrCode;
 let currentProduct = null;
 let fullInventoryData = [];
+let cachedCategories = []; // Memoria locale per velocizzare l'app
 let isInventoryView = false;
+
+// 🚀 VELOCIZZAZIONE: Carichiamo le categorie appena si apre l'app
+window.onload = () => {
+    fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ action: 'getCategories' }) })
+    .then(r => r.json())
+    .then(data => { cachedCategories = data; })
+    .catch(e => console.log("Errore pre-caricamento"));
+};
 
 function showLoading(show, text = "Elaborazione...") {
     document.getElementById('loading-text').innerText = text;
@@ -16,7 +25,8 @@ function showToast(msg, type = "success") {
     t.className = `toast toast-${type}`;
     t.innerText = msg;
     container.appendChild(t);
-    setTimeout(() => { t.style.opacity = '0'; setTimeout(() => t.remove(), 500); }, 3000);
+    // Sparisce più velocemente per dinamismo
+    setTimeout(() => { t.style.opacity = '0'; setTimeout(() => t.remove(), 400); }, 2500);
 }
 
 function goToHome() { 
@@ -32,18 +42,15 @@ function closeModals() {
     document.querySelectorAll('.modal').forEach(m => m.style.display = 'none'); 
 }
 
-function closeAndReturn() {
-    closeModals();
-    if (!isInventoryView) goToHome();
-}
-
-// SCANNER
+// SCANNER VELOCIZZATO
 async function showScanner() {
     document.getElementById('main-menu').style.display = 'none';
     document.getElementById('scanner-container').style.display = 'block';
-    html5QrCode = new Html5Qrcode("reader");
+    if (!html5QrCode) html5QrCode = new Html5Qrcode("reader");
+    
     try {
-        await html5QrCode.start({ facingMode: "environment" }, { fps: 15, qrbox: 250 }, onScanSuccess);
+        // Aumentati i FPS per una lettura più rapida
+        await html5QrCode.start({ facingMode: "environment" }, { fps: 20, qrbox: 250 }, onScanSuccess);
     } catch (e) {
         showToast("Errore fotocamera", "error");
         goToHome();
@@ -59,8 +66,10 @@ async function hideScanner() {
 
 async function onScanSuccess(barcode) {
     const cleanBarcode = barcode.toString().trim();
+    if (navigator.vibrate) navigator.vibrate(50); // Feedback tattile
+    
     showLoading(true, "Ricerca...");
-    if(html5QrCode) { try { await html5QrCode.stop(); await html5QrCode.clear(); } catch(e) {} }
+    if(html5QrCode) { try { await html5QrCode.stop(); } catch(e) {} }
     document.getElementById('scanner-container').style.display = 'none';
     
     try {
@@ -75,7 +84,7 @@ async function onScanSuccess(barcode) {
             currentProduct = { barcode: cleanBarcode, isNew: true };
             openNewProductModal();
         }
-    } catch (e) { showToast("Errore di rete", "error"); goToHome(); }
+    } catch (e) { showToast("Errore rete", "error"); goToHome(); }
 }
 
 // INVENTARIO
@@ -86,18 +95,16 @@ async function loadInventory() {
     document.getElementById('inventory-container').style.display = 'flex';
     
     try {
-        const [respCat, respInv] = await Promise.all([
-            fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ action: 'getCategories' }) }),
-            fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ action: 'getInventory' }) })
-        ]);
-        const cats = await respCat.json();
+        // Usiamo le categorie già in memoria se disponibili
+        const respInv = await fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ action: 'getInventory' }) });
         fullInventoryData = await respInv.json();
         
         const f = document.getElementById('category-filter');
         f.innerHTML = '<option value="ALL">📦 Tutte le categorie</option>';
-        cats.forEach(c => f.innerHTML += `<option value="${c}">${c}</option>`);
+        cachedCategories.forEach(c => f.innerHTML += `<option value="${c}">${c}</option>`);
+        
         renderInventory();
-    } catch (e) { showToast("Errore dati", "error"); }
+    } catch (e) { showToast("Errore", "error"); }
     showLoading(false);
 }
 
@@ -115,7 +122,7 @@ function renderInventory() {
         if (filter !== "ALL" && item[2] !== filter) return;
         if (item[2] !== lastCat) {
             const h = document.createElement('div');
-            h.style = "padding:10px 15px; background:#f1f5f9; font-weight:bold; color:var(--blue);";
+            h.style = "padding:10px 15px; background:#f1f5f9; font-weight:bold; color:var(--blue); font-size:0.9rem;";
             h.innerText = item[2] || "VARIE";
             list.appendChild(h);
             lastCat = item[2];
@@ -132,7 +139,7 @@ function renderInventory() {
     });
 }
 
-// AZIONI
+// OPERAZIONI
 function changeQty(amount) {
     const input = document.getElementById('qty-input');
     let val = parseInt(input.value) || 0;
@@ -152,8 +159,10 @@ function openQtyModal(tipo) {
 async function submitOperation(tipo) {
     const q = parseInt(document.getElementById('qty-input').value);
     const barcodeStr = String(currentProduct.barcode).trim();
-    showLoading(true, "Salvataggio...");
+    
+    // UI OTTIMISTICA: Chiudiamo il modale subito
     closeModals();
+    showLoading(true, "Salvataggio...");
 
     try {
         const resp = await fetch(GAS_URL, {
@@ -168,8 +177,8 @@ async function submitOperation(tipo) {
         });
         const res = await resp.json();
         if(res.success) {
-            showToast(res.message || "Operazione completata!");
-            if(isInventoryView) loadInventory(); else setTimeout(goToHome, 1500);
+            showToast(res.message);
+            if(isInventoryView) loadInventory(); else setTimeout(goToHome, 1200);
         } else { showToast(res.error, "error"); showLoading(false); }
     } catch (e) { showToast("Errore connessione", "error"); showLoading(false); }
 }
@@ -180,27 +189,24 @@ function quickAction(b, n, c, q, t) {
 }
 
 function openNewProductModal() {
-    showLoading(true);
-    fetch(GAS_URL, {method:'POST', body:JSON.stringify({action:'getCategories'})})
-    .then(r => r.json()).then(cats => {
-        const n = document.getElementById('new-prod-category');
-        n.innerHTML = '<option value="" disabled selected>Scegli...</option>';
-        cats.forEach(c => n.innerHTML += `<option value="${c}">${c}</option>`);
-        n.innerHTML += `<option value="NEW">➕ Nuova categoria...</option>`;
-        showLoading(false);
-        document.getElementById('modal-new-product').style.display = 'flex';
-    });
+    const n = document.getElementById('new-prod-category');
+    // Caricamento istantaneo dalle categorie in cache
+    n.innerHTML = '<option value="" disabled selected>Scegli...</option>';
+    cachedCategories.forEach(c => n.innerHTML += `<option value="${c}">${c}</option>`);
+    n.innerHTML += `<option value="NEW">➕ Nuova categoria...</option>`;
+    document.getElementById('modal-new-product').style.display = 'flex';
 }
 
 function checkNewCategory(selectObj) {
     if (selectObj.value === "NEW") {
-        let newCat = prompt("Nuova Categoria:");
+        let newCat = prompt("Inserisci nuova categoria:");
         if (newCat) {
             newCat = newCat.trim().toUpperCase();
             const opt = document.createElement("option");
             opt.text = newCat; opt.value = newCat;
             selectObj.add(opt, selectObj.options[selectObj.options.length - 1]);
             selectObj.value = newCat;
+            if (!cachedCategories.includes(newCat)) cachedCategories.push(newCat);
         }
     }
 }
