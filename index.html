@@ -6,19 +6,20 @@
     <title>Caritas Magazzino Pro</title>
     <link rel="stylesheet" href="style.css">
     <script src="https://unpkg.com/html5-qrcode"></script>
-    <link rel="manifest" href="manifest.json">
 </head>
 <body>
 
     <div id="toast-container"></div>
 
-    <div id="app">
-        <div id="loading-overlay" style="display:none;">
+    <div id="loading-overlay" style="display:none;">
+        <div class="loader-box">
             <div class="spinner"></div>
-            <p>Caricamento...</p>
+            <p id="loading-text">Elaborazione in corso...</p>
         </div>
+    </div>
 
-        <header>
+    <div id="app">
+        <header id="app-header">
             <h1>Caritas</h1>
             <p>SAN GIOVANNI</p>
         </header>
@@ -37,17 +38,16 @@
         <div id="scanner-container" style="display:none;">
             <div id="reader"></div>
             <div class="scanner-ui">
-                <p>Inquadra il codice a barre</p>
                 <button onclick="hideScanner()" class="btn-danger-full">ANNULLA E ESCI</button>
             </div>
         </div>
 
         <div id="inventory-container" style="display:none;" class="full-view">
             <div class="sticky-header">
-                <button onclick="showMenu()" class="btn-back">⬅ Menu</button>
+                <button onclick="goToHome()" class="btn-back">⬅ Menu</button>
                 <select id="category-filter" onchange="renderInventory()"></select>
             </div>
-            <div id="inventory-list-container">
+            <div id="inventory-list-content">
                 <ul id="inventory-list"></ul>
             </div>
         </div>
@@ -57,7 +57,7 @@
                 <h2>Nuovo Prodotto</h2>
                 <div class="input-group">
                     <label>Nome Prodotto</label>
-                    <input type="text" id="new-prod-name" placeholder="Es: Penne Rigate 1kg">
+                    <input type="text" id="new-prod-name" placeholder="Inserisci nome...">
                 </div>
                 <div class="input-group">
                     <label>Categoria</label>
@@ -65,7 +65,7 @@
                 </div>
                 <div class="action-row">
                     <button onclick="saveNewProductAnagrafica()" class="btn-confirm">AVANTI</button>
-                    <button onclick="closeModals()" class="btn-cancel">CHIUDI</button>
+                    <button onclick="closeModals()" class="btn-cancel">ANNULLA</button>
                 </div>
             </div>
         </div>
@@ -75,13 +75,11 @@
                 <h2 id="modal-title">Operazione</h2>
                 <div class="prod-badge" id="prod-category-badge"></div>
                 <h3 id="prod-name-display"></h3>
-                
                 <div class="qty-selector">
                     <button onclick="changeQty(-1)" class="btn-circle">-</button>
-                    <input type="number" id="qty-input" pattern="[0-9]*" inputmode="numeric">
+                    <input type="number" id="qty-input" inputmode="numeric">
                     <button onclick="changeQty(1)" class="btn-circle">+</button>
                 </div>
-
                 <div class="action-row">
                     <button id="btn-conferma-azione" class="btn-confirm">CONFERMA</button>
                     <button onclick="closeModals()" class="btn-cancel">CHIUDI</button>
