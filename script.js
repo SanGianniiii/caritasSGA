@@ -227,16 +227,47 @@ function openNewProductModal() {
     });
 }
 
+// Funzione chiamata quando si seleziona "NEW" nel dropdown
 function checkNewCategory(selectObj) {
     if (selectObj.value === "NEW") {
-        let newCat = prompt("Nuova Categoria:");
-        if (newCat) {
-            newCat = newCat.trim().toUpperCase();
-            const opt = document.createElement("option");
-            opt.text = newCat; opt.value = newCat;
-            selectObj.add(opt, selectObj.options[selectObj.options.length - 1]);
-            selectObj.value = newCat;
+        // Reset dell'input e apertura modale personalizzato
+        document.getElementById('new-cat-name-input').value = "";
+        document.getElementById('modal-add-category').style.display = 'flex';
+        // Rimettiamo momentaneamente il select su vuoto per evitare loop
+        selectObj.value = ""; 
+    }
+}
+
+function closeCategoryModal() {
+    document.getElementById('modal-add-category').style.display = 'none';
+}
+
+function confirmNewCategory() {
+    let newCat = document.getElementById('new-cat-name-input').value.trim().toUpperCase();
+    
+    if (newCat) {
+        const selectObj = document.getElementById('new-prod-category');
+        
+        // Creiamo la nuova opzione
+        const opt = document.createElement("option");
+        opt.text = newCat; 
+        opt.value = newCat;
+        
+        // La inseriamo prima dell'ultima opzione (quella "Nuova categoria...")
+        selectObj.add(opt, selectObj.options[selectObj.options.length - 1]);
+        
+        // Selezioniamo la nuova categoria appena creata
+        selectObj.value = newCat;
+        
+        // Aggiorniamo la cache locale per non perderla
+        if (typeof cachedCategories !== 'undefined' && !cachedCategories.includes(newCat)) {
+            cachedCategories.push(newCat);
         }
+        
+        closeCategoryModal();
+        showToast("Categoria aggiunta!");
+    } else {
+        showToast("Inserisci un nome valido", "error");
     }
 }
 
