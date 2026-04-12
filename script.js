@@ -1,5 +1,5 @@
 // INSERISCI QUI IL TUO URL GOOGLE APPS SCRIPT
-const GAS_URL = "https://script.google.com/macros/s/AKfycbyii0LB2JBDbe_oS2wTon6bdQXm2zQwgtq6WffvXkXyRIOfetG8jkK2qjUOlNsVpPvd/exec"; 
+const GAS_URL = "https://script.google.com/macros/s/AKfycbyii0LB2JBDbe_oS2wTon6bdQXm2zQwgtq6WffvXkXyRIOfetG8jkK2qjUOlNsVpPvd/exec";
 
 let html5QrCode;
 let currentProduct = null;
