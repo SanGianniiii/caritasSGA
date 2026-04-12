@@ -71,7 +71,7 @@ header { background: var(--blue); color: white; text-align: center; padding: 30p
 .input-group input, .input-group select { width: 100%; padding: 15px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 1.1rem; }
 .action-row { display: flex; flex-direction: column; gap: 10px; }
 .btn-confirm { padding: 20px; background: var(--blue); color: white; border: none; border-radius: 15px; font-weight: bold; font-size: 1.1rem; cursor: pointer; }
-.btn-cancel { padding: 10px; background: transparent; border: none; color: #666; font-size: 1.1rem; cursor: pointer; }
+.btn-cancel { padding: 10px; background: var(--red); color: white; border: none; color: #666; font-size: 1.1rem; cursor: pointer; }
 
 /* Inventario - FIX SCROLL E LISTBOX */
 .full-view { position: fixed; inset: 0; background: white; z-index: 5000; display: flex; flex-direction: column; }
