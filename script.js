@@ -38,21 +38,56 @@ function closeAndReturn() {
 }
 
 // SCANNER
+let track = null; // Variabile per controllare il flash
+
 async function showScanner() {
     document.getElementById('main-menu').style.display = 'none';
     document.getElementById('scanner-container').style.display = 'block';
+    
+    // Mostriamo o nascondiamo il tasto torcia in base al supporto del browser
+    document.getElementById('torch-button').style.display = 'none'; 
+
     html5QrCode = new Html5Qrcode("reader");
     try {
-        await html5QrCode.start({ facingMode: "environment" }, { fps: 15, qrbox: 250 }, onScanSuccess);
+        await html5QrCode.start(
+            { facingMode: "environment" }, 
+            { fps: 20, qrbox: 250 }, 
+            onScanSuccess
+        );
+
+        // Tentativo di accedere alla traccia video per la torcia
+        const videoElement = document.querySelector('#reader video');
+        if (videoElement && videoElement.srcObject) {
+            track = videoElement.srcObject.getVideoTracks()[0];
+            const capabilities = track.getCapabilities();
+            // Se il dispositivo ha la torcia, mostriamo il pulsante
+            if (capabilities.torch) {
+                document.getElementById('torch-button').style.display = 'block';
+            }
+        }
     } catch (e) {
         showToast("Errore fotocamera", "error");
         goToHome();
     }
 }
 
+// Funzione per accendere/spegnere la torcia
+async function toggleTorch() {
+    if (track) {
+        const settings = track.getSettings();
+        await track.applyConstraints({
+            advanced: [{ torch: !settings.torch }]
+        });
+    }
+}
+
 async function hideScanner() {
     if(html5QrCode) {
-        try { await html5QrCode.stop(); await html5QrCode.clear(); } catch(e) {}
+        try { 
+            if (track) track.stop(); // Ferma la torcia
+            await html5QrCode.stop(); 
+            await html5QrCode.clear(); 
+        } catch(e) {}
     }
     goToHome();
 }
