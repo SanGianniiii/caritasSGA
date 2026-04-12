@@ -58,30 +58,65 @@ async function hideScanner() {
 }
 
 async function onScanSuccess(barcode) {
-    showLoading(true, "Ricerca...");
-    if(html5QrCode) { await html5QrCode.stop(); await html5QrCode.clear(); }
+    // 1. Normalizzazione del barcode (lo trattiamo come testo puro)
+    const cleanBarcode = barcode.toString().trim();
+    
+    showLoading(true, "Ricerca prodotto...");
+
+    // 2. Fermiamo lo scanner immediatamente per liberare la memoria e la fotocamera
+    if (html5QrCode) {
+        try {
+            await html5QrCode.stop();
+            await html5QrCode.clear();
+        } catch (err) {
+            console.warn("Errore durante l'arresto dello scanner:", err);
+        }
+    }
+    
+    // Nascondiamo il contenitore dello scanner
     document.getElementById('scanner-container').style.display = 'none';
     
     try {
-        let r = await fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ action: 'checkProduct', barcode: barcode }) });
-        let p = await r.json();
-        showLoading(false);
+        // 3. Interrogazione al database (Google Apps Script)
+        let response = await fetch(GAS_URL, { 
+            method: 'POST', 
+            body: JSON.stringify({ action: 'checkProduct', barcode: cleanBarcode }) 
+        });
         
-        // LOGICA CORRETTA: Se il prodotto ha un nome, lo riconosciamo subito
-        if (p && p.name) {
+        let productData = await response.json();
+        showLoading(false);
+
+        // 4. Controllo esistenza prodotto
+        if (productData && productData.name) {
+            // IL PRODOTTO ESISTE: popoliamo currentProduct con i dati salvati
             currentProduct = { 
-                barcode: p.barcode, 
-                name: p.name, 
-                category: p.category, 
-                quantity: p.quantity,
+                barcode: cleanBarcode, 
+                name: productData.name, 
+                category: productData.category, 
+                quantity: productData.quantity,
                 isNew: false 
             };
-            openQtyModal("carico"); // Salta il modale categoria
+            
+            // Apriamo direttamente il modale del carico senza chiedere nulla
+            openQtyModal("carico");
+            
         } else {
-            currentProduct = { barcode: barcode, isNew: true };
+            // IL PRODOTTO NON ESISTE: prepariamo i dati per la nuova anagrafica
+            currentProduct = { 
+                barcode: cleanBarcode, 
+                isNew: true 
+            };
+            
+            // Apriamo il modale per inserire Nome e Categoria
             openNewProductModal();
         }
-    } catch (e) { showToast("Errore di rete", "error"); goToHome(); }
+    } catch (e) {
+        showLoading(false);
+        showToast("Errore di rete o database", "error");
+        console.error("Errore fetch:", e);
+        // In caso di errore torniamo alla home per evitare il blocco dell'app
+        goToHome();
+    }
 }
 
 async function loadInventory() {
