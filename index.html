@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Caritas Magazzino Pro</title>
+    <link rel="manifest" href="manifest.json">
     <link rel="stylesheet" href="style.css">
     <script src="https://unpkg.com/html5-qrcode"></script>
 </head>
@@ -65,7 +66,7 @@
                 </div>
                 <div class="action-row">
                     <button onclick="saveNewProductAnagrafica()" class="btn-confirm">AVANTI</button>
-                    <button onclick="closeModals()" class="btn-cancel">ANNULLA</button>
+                    <button onclick="closeAndReturn()" class="btn-cancel">ANNULLA</button>
                 </div>
             </div>
         </div>
@@ -82,12 +83,19 @@
                 </div>
                 <div class="action-row">
                     <button id="btn-conferma-azione" class="btn-confirm">CONFERMA</button>
-                    <button onclick="closeModals()" class="btn-cancel">CHIUDI</button>
+                    <button onclick="closeAndReturn()" class="btn-cancel">CHIUDI</button>
                 </div>
             </div>
         </div>
     </div>
 
     <script src="script.js"></script>
+    <script>
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('sw.js').then(() => {
+                console.log('Service Worker Registrato');
+            });
+        }
+    </script>
 </body>
 </html>
