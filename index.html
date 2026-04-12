@@ -76,6 +76,20 @@
             </div>
         </div>
 
+        <div id="modal-add-category" class="modal" style="display:none;">
+    <div class="modal-body">
+        <h2 class="btn-text" style="color: var(--blue); margin-bottom: 20px;">NUOVA CATEGORIA</h2>
+        <div class="input-group">
+            <label>Nome Categoria</label>
+            <input type="text" id="new-cat-name-input" placeholder="Esempio: BEVANDE" style="text-transform: uppercase;">
+        </div>
+        <div class="action-row">
+            <button onclick="confirmNewCategory()" class="btn-confirm">AGGIUNGI</button>
+            <button onclick="closeCategoryModal()" class="btn-cancel">ANNULLA</button>
+        </div>
+    </div>
+</div>
+
         <div id="modal-qty" class="modal" style="display:none;">
             <div class="modal-body">
                 <h2 id="modal-title">Operazione</h2>
