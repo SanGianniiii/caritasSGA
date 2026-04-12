@@ -3,96 +3,93 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Caritas Dispensa Pro</title>
+    <title>Caritas Magazzino Pro</title>
     <link rel="stylesheet" href="style.css">
     <script src="https://unpkg.com/html5-qrcode"></script>
     <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#1e3a8a">
 </head>
 <body>
 
+    <div id="toast-container"></div>
+
     <div id="app">
-        <div id="loading-overlay" class="loading-overlay" style="display:none;">
+        <div id="loading-overlay" style="display:none;">
             <div class="spinner"></div>
-            <p>Sincronizzazione...</p>
+            <p>Caricamento...</p>
         </div>
 
-        <div id="custom-alert" class="custom-alert" style="display:none;">
-            <div class="alert-content">
-                <div class="alert-icon" id="alert-icon-type">✅</div>
-                <div id="alert-message"></div>
-            </div>
-        </div>
-
-        <header id="main-header">
-            <h1 class="app-title">Caritas San Giovanni</h1>
-            <p class="app-subtitle">Gestione Avanzata Dispensa</p>
+        <header>
+            <h1>Caritas</h1>
+            <p>SAN GIOVANNI</p>
         </header>
 
-        <div id="main-menu" class="container">
-            <button onclick="showScanner()" class="btn-main btn-scan">
-                <span class="icon">📷</span> ACQUISISCI PRODOTTO
+        <main id="main-menu" class="container">
+            <button onclick="showScanner()" class="btn-hero btn-blue">
+                <span class="btn-icon">📷</span>
+                <span class="btn-text">SCANSIONA</span>
             </button>
-            <button onclick="loadInventory()" class="btn-main btn-inventory">
-                <span class="icon">📦</span> CONSULTA GIACENZE
+            <button onclick="loadInventory()" class="btn-hero btn-white">
+                <span class="btn-icon">📦</span>
+                <span class="btn-text">GIACENZE</span>
             </button>
-        </div>
+        </main>
 
         <div id="scanner-container" style="display:none;">
-            <div class="scanner-header">Inquadra Codice</div>
             <div id="reader"></div>
-            <button onclick="hideScanner()" class="btn-cancel-scan">❌ ANNULLA</button>
+            <div class="scanner-ui">
+                <p>Inquadra il codice a barre</p>
+                <button onclick="hideScanner()" class="btn-danger-full">ANNULLA E ESCI</button>
+            </div>
         </div>
 
-        <div id="inventory-container" style="display:none;" class="container">
-            <div class="inventory-controls">
-                <button onclick="showMenu()" class="btn-outline">⬅ Menu</button>
-                <div class="filter-group">
-                    <select id="category-filter" onchange="renderInventory()">
-                        <option value="ALL">Tutte le categorie</option>
-                    </select>
-                </div>
+        <div id="inventory-container" style="display:none;" class="full-view">
+            <div class="sticky-header">
+                <button onclick="showMenu()" class="btn-back">⬅ Menu</button>
+                <select id="category-filter" onchange="renderInventory()"></select>
             </div>
-            <ul id="inventory-list"></ul>
+            <div id="inventory-list-container">
+                <ul id="inventory-list"></ul>
+            </div>
         </div>
 
         <div id="modal-new-product" class="modal" style="display:none;">
-            <div class="modal-content">
-                <h3>Nuovo Prodotto</h3>
-                <div class="form-group">
+            <div class="modal-body">
+                <h2>Nuovo Prodotto</h2>
+                <div class="input-group">
                     <label>Nome Prodotto</label>
-                    <input type="text" id="new-prod-name" placeholder="Inserisci nome...">
+                    <input type="text" id="new-prod-name" placeholder="Es: Penne Rigate 1kg">
                 </div>
-                <div class="form-group">
+                <div class="input-group">
                     <label>Categoria</label>
                     <select id="new-prod-category" onchange="checkNewCategory(this)"></select>
                 </div>
-                <div class="modal-buttons">
-                    <button onclick="saveNewProductAnagrafica()" class="btn-save">Avanti ➡</button>
-                    <button onclick="closeModals()" class="btn-text">Annulla</button>
+                <div class="action-row">
+                    <button onclick="saveNewProductAnagrafica()" class="btn-confirm">AVANTI</button>
+                    <button onclick="closeModals()" class="btn-cancel">CHIUDI</button>
                 </div>
             </div>
         </div>
 
         <div id="modal-qty" class="modal" style="display:none;">
-            <div class="modal-content">
-                <h3 id="modal-title">Operazione</h3>
-                <div class="modal-info">
-                    <span class="badge" id="prod-category-badge"></span>
-                    <strong id="prod-name-display" class="product-title"></strong>
+            <div class="modal-body">
+                <h2 id="modal-title">Operazione</h2>
+                <div class="prod-badge" id="prod-category-badge"></div>
+                <h3 id="prod-name-display"></h3>
+                
+                <div class="qty-selector">
+                    <button onclick="changeQty(-1)" class="btn-circle">-</button>
+                    <input type="number" id="qty-input" pattern="[0-9]*" inputmode="numeric">
+                    <button onclick="changeQty(1)" class="btn-circle">+</button>
                 </div>
-                <div class="qty-control">
-                    <button onclick="changeQty(-1)" class="btn-qty">-</button>
-                    <input type="number" id="qty-input" inputmode="numeric" value="1">
-                    <button onclick="changeQty(1)" class="btn-qty">+</button>
-                </div>
-                <div class="modal-buttons">
-                    <button id="btn-conferma-azione" class="btn-save">Conferma</button>
-                    <button onclick="closeModals()" class="btn-text">Chiudi</button>
+
+                <div class="action-row">
+                    <button id="btn-conferma-azione" class="btn-confirm">CONFERMA</button>
+                    <button onclick="closeModals()" class="btn-cancel">CHIUDI</button>
                 </div>
             </div>
         </div>
     </div>
+
     <script src="script.js"></script>
 </body>
 </html>
