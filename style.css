@@ -22,8 +22,43 @@ header { background: var(--blue); color: white; text-align: center; padding: 30p
 /* Scanner */
 #scanner-container { position: fixed; inset: 0; background: #000; z-index: 9999; }
 #reader { width: 100%; height: 100%; }
-.scanner-ui { position: absolute; bottom: 30px; width: 100%; padding: 0 20px; z-index: 10001; }
-.btn-danger-full { width: 100%; padding: 20px; background: var(--red); color: white; border: none; border-radius: 15px; font-weight: bold; font-size: 1.1rem; }
+/* Stile per il tasto Torcia */
+.btn-torch {
+    width: 80px;
+    height: 80px;
+    background: rgba(255, 255, 255, 0.2);
+    border: 2px solid white;
+    border-radius: 50%;
+    color: white;
+    font-weight: bold;
+    margin: 0 auto 20px auto;
+    display: block;
+    backdrop-filter: blur(5px);
+}
+
+/* Stile per il tasto Annulla (già esistente o da potenziare) */
+.btn-danger-full {
+    width: 100%;
+    padding: 18px;
+    background: var(--red); /* Usando la tua variabile red */
+    color: white;
+    border: none;
+    border-radius: 15px;
+    font-weight: bold;
+    font-size: 1.1rem;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+    text-transform: uppercase;
+    cursor: pointer;
+}
+
+.scanner-ui {
+    position: absolute;
+    bottom: 40px;
+    width: 100%;
+    padding: 0 30px;
+    text-align: center;
+    z-index: 10001;
+}
 
 /* Modali Full Screen */
 .modal { position: fixed; inset: 0; background: white; z-index: 10000; padding: 40px 20px; display: flex; flex-direction: column; overflow-y: auto; }
