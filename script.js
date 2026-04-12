@@ -5,11 +5,9 @@ let currentProduct = null;
 let fullInventoryData = [];
 let isInventoryView = false;
 
-// Gestione Spinner con Messaggio
 function showLoading(show, text = "Elaborazione...") {
-    const loader = document.getElementById('loading-overlay');
     document.getElementById('loading-text').innerText = text;
-    loader.style.display = show ? 'flex' : 'none';
+    document.getElementById('loading-overlay').style.display = show ? 'flex' : 'none';
 }
 
 function showToast(msg, type = "success") {
@@ -21,13 +19,13 @@ function showToast(msg, type = "success") {
     setTimeout(() => { t.style.opacity = '0'; setTimeout(() => t.remove(), 500); }, 3000);
 }
 
-// Navigazione e Modali (Aggiornato)
 function goToHome() { 
     closeModals();
     document.getElementById('scanner-container').style.display = 'none';
     document.getElementById('inventory-container').style.display = 'none';
     document.getElementById('main-menu').style.display = 'block';
     isInventoryView = false;
+    showLoading(false); // Forza la chiusura di eventuali spinner rimasti
 }
 
 function closeModals() { 
@@ -36,29 +34,23 @@ function closeModals() {
 
 function closeAndReturn() {
     closeModals();
-    if (!isInventoryView) {
-        goToHome();
-    }
+    if (!isInventoryView) goToHome();
 }
 
-// SCANNER
 async function showScanner() {
-    showLoading(true, "Attivazione fotocamera...");
     document.getElementById('main-menu').style.display = 'none';
     document.getElementById('scanner-container').style.display = 'block';
     html5QrCode = new Html5Qrcode("reader");
     try {
         await html5QrCode.start({ facingMode: "environment" }, { fps: 15, qrbox: 250 }, onScanSuccess);
-        showLoading(false);
     } catch (e) {
-        showToast("Impossibile avviare fotocamera", "error");
+        showToast("Errore fotocamera", "error");
         goToHome();
     }
 }
 
 async function hideScanner() {
-    showLoading(true, "Chiusura scanner...");
-    if(html5QrCode) {
+    if(html5QrCode && html5QrCode.isScanning) {
         await html5QrCode.stop();
         await html5QrCode.clear();
     }
@@ -66,33 +58,34 @@ async function hideScanner() {
 }
 
 async function onScanSuccess(barcode) {
-    showLoading(true, "Ricerca prodotto...");
-    if(html5QrCode) {
-        await html5QrCode.stop();
-        await html5QrCode.clear();
-    }
+    showLoading(true, "Ricerca...");
+    if(html5QrCode) { await html5QrCode.stop(); await html5QrCode.clear(); }
     document.getElementById('scanner-container').style.display = 'none';
     
     try {
         let r = await fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ action: 'checkProduct', barcode: barcode }) });
         let p = await r.json();
         showLoading(false);
+        
+        // LOGICA CORRETTA: Se il prodotto ha un nome, lo riconosciamo subito
         if (p && p.name) {
-            currentProduct = { ...p, isNew: false };
-            openQtyModal("carico");
+            currentProduct = { 
+                barcode: p.barcode, 
+                name: p.name, 
+                category: p.category, 
+                quantity: p.quantity,
+                isNew: false 
+            };
+            openQtyModal("carico"); // Salta il modale categoria
         } else {
             currentProduct = { barcode: barcode, isNew: true };
             openNewProductModal();
         }
-    } catch (e) { 
-        showToast("Errore di rete", "error"); 
-        goToHome(); 
-    }
+    } catch (e) { showToast("Errore di rete", "error"); goToHome(); }
 }
 
-// INVENTARIO
 async function loadInventory() {
-    showLoading(true, "Caricamento giacenze...");
+    showLoading(true, "Caricamento...");
     isInventoryView = true;
     document.getElementById('main-menu').style.display = 'none';
     document.getElementById('inventory-container').style.display = 'flex';
@@ -111,7 +104,7 @@ async function loadInventory() {
         cats.forEach(c => f.innerHTML += `<option value="${c}">${c}</option>`);
         
         renderInventory();
-    } catch (e) { showToast("Errore caricamento", "error"); }
+    } catch (e) { showToast("Errore", "error"); }
     showLoading(false);
 }
 
@@ -120,15 +113,18 @@ function renderInventory() {
     const filter = document.getElementById('category-filter').value;
     list.innerHTML = "";
     
-    let sorted = [...fullInventoryData].sort((a,b) => (a[2] || "").localeCompare(b[2] || ""));
-    let lastCat = null;
+    // Filtro righe vuote e ordinamento
+    let sorted = fullInventoryData
+        .filter(item => item[1] && item[1].toString().trim() !== "") // FIX: Salta righe vuote
+        .sort((a,b) => (a[2] || "").localeCompare(b[2] || ""));
 
+    let lastCat = null;
     sorted.forEach((item) => {
         if (filter !== "ALL" && item[2] !== filter) return;
         if (item[2] !== lastCat) {
             const h = document.createElement('div');
-            h.style = "padding:10px 15px; background:#f8fafc; font-weight:bold; font-size:0.8rem; color:#1e3a8a; text-transform:uppercase;";
-            h.innerText = item[2] || "Varie";
+            h.style = "padding:10px 15px; background:#f1f5f9; font-weight:bold; color:var(--blue);";
+            h.innerText = item[2] || "VARIE";
             list.appendChild(h);
             lastCat = item[2];
         }
@@ -144,19 +140,17 @@ function renderInventory() {
     });
 }
 
-// OPERAZIONI
 function changeQty(amount) {
     const input = document.getElementById('qty-input');
     let val = parseInt(input.value) || 0;
-    val += amount;
-    if (val < 1) val = 1;
+    val = Math.max(1, val + amount);
     input.value = val;
 }
 
 function openQtyModal(tipo) {
-    document.getElementById('modal-title').innerText = tipo === "carico" ? "📦 Carico" : "📤 Scarico";
+    document.getElementById('modal-title').innerText = tipo === "carico" ? "📦 CARICO" : "📤 SCARICO";
     document.getElementById('prod-category-badge').innerText = currentProduct.category || "Nuovo";
-    document.getElementById('prod-name-display').innerText = currentProduct.name || "Prodotto";
+    document.getElementById('prod-name-display').innerText = currentProduct.name;
     document.getElementById('qty-input').value = "1";
     document.getElementById('modal-qty').style.display = 'flex';
     document.getElementById('btn-conferma-azione').onclick = () => submitOperation(tipo);
@@ -164,37 +158,32 @@ function openQtyModal(tipo) {
 
 async function submitOperation(tipo) {
     const q = parseInt(document.getElementById('qty-input').value);
-    if (tipo === "scarico" && q > currentProduct.quantity) {
-        showToast("Giacenza insufficiente!", "error"); return;
-    }
-
-    closeModals();
-    showLoading(true, "Salvataggio in corso...");
+    const barcodeStr = String(currentProduct.barcode);
     
+    // Cerchiamo la riga aggiornata nel set di dati attuale
+    const rowIndex = fullInventoryData.findIndex(row => String(row[0]) === barcodeStr);
+
+    showLoading(true, "Salvataggio...");
+    closeModals();
+
     try {
         const resp = await fetch(GAS_URL, {
             method: 'POST',
             body: JSON.stringify({
                 action: 'updateStock',
-                barcode: currentProduct.barcode,
+                barcode: barcodeStr,
                 name: currentProduct.name,
                 category: currentProduct.category,
                 quantity: tipo === "carico" ? q : -q,
-                row: getRowIndex(currentProduct.barcode)
+                row: rowIndex !== -1 ? rowIndex + 2 : null
             })
         });
         const res = await resp.json();
-        showLoading(false);
         if(res.success) {
-            showToast("Aggiornato con successo!");
-            if(isInventoryView) loadInventory(); else setTimeout(goToHome, 1000);
-        } else { showToast(res.error, "error"); }
-    } catch (e) { showLoading(false); showToast("Errore salvataggio", "error"); }
-}
-
-function getRowIndex(barcode) {
-    const idx = fullInventoryData.findIndex(i => String(i[0]) === String(barcode));
-    return idx !== -1 ? idx + 2 : null;
+            showToast("Successo!");
+            if(isInventoryView) loadInventory(); else goToHome();
+        } else { showToast(res.error, "error"); showLoading(false); }
+    } catch (e) { showToast("Errore connessione", "error"); showLoading(false); }
 }
 
 function quickAction(b, n, c, q, t) {
@@ -203,7 +192,7 @@ function quickAction(b, n, c, q, t) {
 }
 
 function openNewProductModal() {
-    showLoading(true, "Preparazione anagrafica...");
+    showLoading(true);
     fetch(GAS_URL, {method:'POST', body:JSON.stringify({action:'getCategories'})})
     .then(r => r.json()).then(cats => {
         const n = document.getElementById('new-prod-category');
@@ -217,16 +206,13 @@ function openNewProductModal() {
 
 function checkNewCategory(selectObj) {
     if (selectObj.value === "NEW") {
-        let newCat = prompt("Inserisci il nome della nuova categoria:");
+        let newCat = prompt("Nuova Categoria:");
         if (newCat) {
             newCat = newCat.trim().toUpperCase();
-            const option = document.createElement("option");
-            option.text = newCat;
-            option.value = newCat;
-            selectObj.add(option, selectObj.options[selectObj.options.length - 1]);
+            const opt = document.createElement("option");
+            opt.text = newCat; opt.value = newCat;
+            selectObj.add(opt, selectObj.options[selectObj.options.length - 1]);
             selectObj.value = newCat;
-        } else {
-            selectObj.selectedIndex = 0;
         }
     }
 }
@@ -234,7 +220,8 @@ function checkNewCategory(selectObj) {
 function saveNewProductAnagrafica() {
     const n = document.getElementById('new-prod-name').value;
     const c = document.getElementById('new-prod-category').value;
-    if(!n || !c) { showToast("Compila tutto!", "error"); return; }
+    if(!n || !c) { showToast("Dati mancanti", "error"); return; }
     currentProduct.name = n; currentProduct.category = c;
-    closeModals(); openQtyModal("carico");
+    closeModals();
+    openQtyModal("carico");
 }
