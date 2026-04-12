@@ -21,8 +21,25 @@ function showToast(msg, type = "success") {
     setTimeout(() => { t.style.opacity = '0'; setTimeout(() => t.remove(), 500); }, 3000);
 }
 
-function goToHome() { location.reload(); }
-function closeModals() { document.querySelectorAll('.modal').forEach(m => m.style.display = 'none'); }
+// Navigazione e Modali (Aggiornato)
+function goToHome() { 
+    closeModals();
+    document.getElementById('scanner-container').style.display = 'none';
+    document.getElementById('inventory-container').style.display = 'none';
+    document.getElementById('main-menu').style.display = 'block';
+    isInventoryView = false;
+}
+
+function closeModals() { 
+    document.querySelectorAll('.modal').forEach(m => m.style.display = 'none'); 
+}
+
+function closeAndReturn() {
+    closeModals();
+    if (!isInventoryView) {
+        goToHome();
+    }
+}
 
 // SCANNER
 async function showScanner() {
@@ -50,7 +67,10 @@ async function hideScanner() {
 
 async function onScanSuccess(barcode) {
     showLoading(true, "Ricerca prodotto...");
-    if(html5QrCode) await html5QrCode.stop();
+    if(html5QrCode) {
+        await html5QrCode.stop();
+        await html5QrCode.clear();
+    }
     document.getElementById('scanner-container').style.display = 'none';
     
     try {
@@ -64,7 +84,10 @@ async function onScanSuccess(barcode) {
             currentProduct = { barcode: barcode, isNew: true };
             openNewProductModal();
         }
-    } catch (e) { showToast("Errore di rete", "error"); goToHome(); }
+    } catch (e) { 
+        showToast("Errore di rete", "error"); 
+        goToHome(); 
+    }
 }
 
 // INVENTARIO
@@ -75,7 +98,6 @@ async function loadInventory() {
     document.getElementById('inventory-container').style.display = 'flex';
     
     try {
-        // Carica categorie e dati insieme
         const [respCat, respInv] = await Promise.all([
             fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ action: 'getCategories' }) }),
             fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ action: 'getInventory' }) })
@@ -84,7 +106,6 @@ async function loadInventory() {
         const cats = await respCat.json();
         fullInventoryData = await respInv.json();
         
-        // Popola filtro
         const f = document.getElementById('category-filter');
         f.innerHTML = '<option value="ALL">📦 Tutte le categorie</option>';
         cats.forEach(c => f.innerHTML += `<option value="${c}">${c}</option>`);
@@ -106,7 +127,7 @@ function renderInventory() {
         if (filter !== "ALL" && item[2] !== filter) return;
         if (item[2] !== lastCat) {
             const h = document.createElement('div');
-            h.style = "padding:10px 15px; background:#f8fafc; font-weight:bold; font-size:0.7rem; color:#1e3a8a; text-transform:uppercase;";
+            h.style = "padding:10px 15px; background:#f8fafc; font-weight:bold; font-size:0.8rem; color:#1e3a8a; text-transform:uppercase;";
             h.innerText = item[2] || "Varie";
             list.appendChild(h);
             lastCat = item[2];
@@ -124,6 +145,14 @@ function renderInventory() {
 }
 
 // OPERAZIONI
+function changeQty(amount) {
+    const input = document.getElementById('qty-input');
+    let val = parseInt(input.value) || 0;
+    val += amount;
+    if (val < 1) val = 1;
+    input.value = val;
+}
+
 function openQtyModal(tipo) {
     document.getElementById('modal-title').innerText = tipo === "carico" ? "📦 Carico" : "📤 Scarico";
     document.getElementById('prod-category-badge').innerText = currentProduct.category || "Nuovo";
@@ -158,7 +187,6 @@ async function submitOperation(tipo) {
         showLoading(false);
         if(res.success) {
             showToast("Aggiornato con successo!");
-            // Se eravamo nell'inventario, ricarica restando lì, altrimenti torna alla home
             if(isInventoryView) loadInventory(); else setTimeout(goToHome, 1000);
         } else { showToast(res.error, "error"); }
     } catch (e) { showLoading(false); showToast("Errore salvataggio", "error"); }
@@ -185,6 +213,22 @@ function openNewProductModal() {
         showLoading(false);
         document.getElementById('modal-new-product').style.display = 'flex';
     });
+}
+
+function checkNewCategory(selectObj) {
+    if (selectObj.value === "NEW") {
+        let newCat = prompt("Inserisci il nome della nuova categoria:");
+        if (newCat) {
+            newCat = newCat.trim().toUpperCase();
+            const option = document.createElement("option");
+            option.text = newCat;
+            option.value = newCat;
+            selectObj.add(option, selectObj.options[selectObj.options.length - 1]);
+            selectObj.value = newCat;
+        } else {
+            selectObj.selectedIndex = 0;
+        }
+    }
 }
 
 function saveNewProductAnagrafica() {
