@@ -36,12 +36,17 @@
             </button>
         </main>
 
-        <div id="scanner-container" style="display:none;">
-            <div id="reader"></div>
-            <div class="scanner-ui">
-                <button onclick="hideScanner()" class="btn-danger-full">ANNULLA E ESCI</button>
-            </div>
-        </div>
+       <div id="scanner-container" style="display:none;">
+    <div id="reader"></div>
+    <div class="scanner-ui">
+        <button id="torch-button" onclick="toggleTorch()" class="btn-torch">
+            🔦 Luci
+        </button>
+        <button onclick="hideScanner()" class="btn-danger-full">
+            ANNULLA ED ESCI
+        </button>
+    </div>
+</div>
 
         <div id="inventory-container" style="display:none;" class="full-view">
             <div class="sticky-header">
