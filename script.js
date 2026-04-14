@@ -235,11 +235,26 @@ async function submitOperation(tipo) {
             })
         });
         const res = await resp.json();
+        
         if(res.success) {
             showToast(res.message || "Operazione completata!");
-            if(isInventoryView) loadInventory(); else setTimeout(goToHome, 1500);
-        } else { showToast(res.error, "error"); showLoading(false); }
-    } catch (e) { showToast("Errore connessione", "error"); showLoading(false); }
+            
+            // --- MODIFICA QUI ---
+            if(isInventoryView) {
+                // Se siamo nella lista Giacenze, ricarichiamo i dati dal server
+                await loadInventory(); 
+            } else {
+                // Se siamo nello scanner, torniamo alla home dopo un secondo
+                setTimeout(goToHome, 1500);
+            }
+        } else { 
+            showToast(res.error, "error"); 
+            showLoading(false); 
+        }
+    } catch (e) { 
+        showToast("Errore connessione", "error"); 
+        showLoading(false); 
+    }
 }
 
 function quickAction(b, n, c, q, t) {
