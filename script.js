@@ -141,20 +141,53 @@ function renderInventory() {
     const filter = document.getElementById('category-filter').value;
     list.innerHTML = "";
     
+    // 1. Calcoliamo preventivamente il totale dei prodotti per ogni categoria
+    let categoryTotals = {};
+    fullInventoryData.forEach(item => {
+        if (item[1] && item[1].toString().trim() !== "") {
+            let cat = item[2] || "VARIE";
+            let qty = parseInt(item[3]) || 0;
+            categoryTotals[cat] = (categoryTotals[cat] || 0) + qty;
+        }
+    });
+
+    // 2. Filtriamo e ordiniamo i dati
     let sorted = fullInventoryData
         .filter(item => item[1] && item[1].toString().trim() !== "")
-        .sort((a,b) => (a[2] || "").localeCompare(b[2] || ""));
+        .sort((a,b) => (a[2] || "VARIE").localeCompare(b[2] || "VARIE"));
 
     let lastCat = null;
     sorted.forEach((item) => {
-        if (filter !== "ALL" && item[2] !== filter) return;
-        if (item[2] !== lastCat) {
+        let currentCat = item[2] || "VARIE";
+
+        // Se è attivo un filtro e la categoria non corrisponde, saltiamo
+        if (filter !== "ALL" && currentCat !== filter) return;
+
+        // 3. Creazione Intestazione Categoria (con Totale)
+        if (currentCat !== lastCat) {
             const h = document.createElement('div');
-            h.style = "padding:10px 15px; background:#f1f5f9; font-weight:bold; color:var(--blue);";
-            h.innerText = item[2] || "VARIE";
+            
+            if (filter !== "ALL") {
+                // STILE QUANDO LA CATEGORIA È FILTRATA (Bello grande in cima)
+                h.style = "padding: 20px 15px; background: var(--blue); color: white; font-size: 1.5rem; text-align: center; font-weight: bold; border-radius: 10px; margin: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);";
+                h.innerHTML = `
+                    ${currentCat} <br> 
+                    <span style="font-size: 1.2rem; font-weight: normal; color: #e0e7ff;">TOTALE: ${categoryTotals[currentCat]}</span>
+                `;
+            } else {
+                // STILE QUANDO VEDI TUTTO (Intestazione classica con badge laterale)
+                h.style = "padding: 10px 15px; background: #e0e7ff; font-weight: bold; color: var(--blue); display: flex; justify-content: space-between; align-items: center; border-left: 4px solid var(--blue); margin-bottom: 5px;";
+                h.innerHTML = `
+                    <span>${currentCat}</span> 
+                    <span style="background: var(--blue); color: white; padding: 4px 10px; border-radius: 15px; font-size: 0.9rem;">Tot: ${categoryTotals[currentCat]}</span>
+                `;
+            }
+            
             list.appendChild(h);
-            lastCat = item[2];
+            lastCat = currentCat;
         }
+
+        // 4. Creazione riga del prodotto (Invariata)
         const li = document.createElement('li');
         li.className = "inventory-card";
         li.innerHTML = `
